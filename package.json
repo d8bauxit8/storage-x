@@ -1,7 +1,7 @@
 {
   "name": "storage-x",
   "version": "1.0.0",
-  "description": "This package allow to use a strongly typed storage.",
+  "description": "Actually this package will help you to use a strongly typed storage and its events.",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "@types/jest": "^26.0.4",
