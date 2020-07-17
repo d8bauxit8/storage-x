@@ -1,4 +1,4 @@
-#StorageX
+# StorageX
 Actually this package will help you to use a strongly typed storage and its events.
 
 My problem is that, I really like the strongly typed languages, like TypeScript,
