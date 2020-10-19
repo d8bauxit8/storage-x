@@ -1,14 +1,17 @@
-type StorageXDependencyCollection<Dependencies> = Exclude<Dependencies, Window>;
+type StorageXDependencyCollection = WindowLocalStorage &
+  WindowOrWorkerGlobalScope &
+  WindowSessionStorage;
 
-const DEPENDENCIES: Window = window || document.defaultView;
+const DEPENDENCIES: StorageXDependencyCollection =
+  window || document.defaultView;
 
-export abstract class StorageXDependencies<OtherDependencies> {
-  private readonly _dependencies: StorageXDependencyCollection<
-    OtherDependencies
-  >;
+export abstract class StorageXDependencies<
+  OtherDependencies extends Partial<StorageXDependencyCollection>
+> {
+  private readonly _dependencies: OtherDependencies;
+
   protected constructor() {
-    // @ts-ignore
-    this._dependencies = DEPENDENCIES;
+    this._dependencies = DEPENDENCIES as OtherDependencies;
 
     // Check the needed dependencies
     if (!this.dependencies) {
@@ -16,9 +19,7 @@ export abstract class StorageXDependencies<OtherDependencies> {
     }
   }
 
-  protected get dependencies(): StorageXDependencyCollection<
-    OtherDependencies
-  > {
+  protected get dependencies(): OtherDependencies {
     return this._dependencies;
   }
 }
