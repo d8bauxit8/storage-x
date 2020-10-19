@@ -66,8 +66,8 @@ export class StorageXEventController<
   }
 
   add<Key extends StorageXCollectionKey<StorageXCollection>>(
-    handler: StorageXEventHandler<Key, StorageXCollection[Key]>,
-    key: Key
+    key: Key,
+    handler: StorageXEventHandler<Key, StorageXCollection[Key]>
   ): void {
     const handlerList = this.getHandlerList(key);
 
@@ -80,8 +80,8 @@ export class StorageXEventController<
   }
 
   remove<Key extends StorageXCollectionKey<StorageXCollection>>(
-    handler: StorageXEventHandler<Key, StorageXCollection[Key]>,
-    key: Key
+    key: Key,
+    handler: StorageXEventHandler<Key, StorageXCollection[Key]>
   ): void {
     const handlerList = this.getHandlerList(key);
 
