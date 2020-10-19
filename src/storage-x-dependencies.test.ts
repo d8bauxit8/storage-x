@@ -11,18 +11,36 @@ class StorageXTest extends StorageXDependencies<WindowLocalStorage> {
   }
 }
 
+class StorageXTestWhenThereIsNoWindow extends StorageXTest {
+  protected get dependencies(): WindowLocalStorage {
+    // Its needed to test the constructor error
+    // @ts-ignore
+    return null;
+  }
+}
+
 describe('StorageXDependencies', (): void => {
   let storageXDependenciesTest: StorageXTest;
 
-  beforeEach((): void => {
-    storageXDependenciesTest = new StorageXTest();
+  describe('when there is window', (): void => {
+    beforeEach((): void => {
+      storageXDependenciesTest = new StorageXTest();
+    });
+
+    it('should be created', (): void => {
+      expect(storageXDependenciesTest).toBeTruthy();
+    });
+
+    it('should be get dependencies', (): void => {
+      expect(storageXDependenciesTest.dependenciesValue).toEqual(window);
+    });
   });
 
-  it('should be created', (): void => {
-    expect(storageXDependenciesTest).toBeTruthy();
-  });
-
-  it('should be get dependencies', (): void => {
-    expect(storageXDependenciesTest.dependenciesValue).toEqual(window);
+  describe('when there is no window', (): void => {
+    it('should be created', (): void => {
+      expect(() => new StorageXTestWhenThereIsNoWindow()).toThrowError(
+        'The window is not available!'
+      );
+    });
   });
 });
