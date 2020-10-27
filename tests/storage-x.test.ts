@@ -1,4 +1,4 @@
-import { StorageTypes, StorageX } from './storage-x';
+import { StorageTypes, StorageX } from '../src/storage-x';
 
 interface Test {
   __UTest__: string;

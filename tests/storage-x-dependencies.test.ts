@@ -1,4 +1,4 @@
-import { StorageXDependencies } from './storage-x-dependencies';
+import { StorageXDependencies } from '../src/storage-x-dependencies';
 
 // We have to define a test class because the StorageXDependencies is abstract.
 class StorageXTest extends StorageXDependencies<WindowLocalStorage> {
