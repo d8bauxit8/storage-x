@@ -100,7 +100,7 @@ export class StorageXEventController<
 
   private isStorageEventAvailable(): boolean {
     return (
-      this.dependencies.hasOwnProperty('onStorage') &&
+      this.dependencies.hasOwnProperty('onstorage') &&
       this.dependencies.hasOwnProperty('addEventListener')
     );
   }
