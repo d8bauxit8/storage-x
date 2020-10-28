@@ -1,17 +1,21 @@
 type StorageXDependencyCollection = WindowLocalStorage &
   WindowOrWorkerGlobalScope &
-  WindowSessionStorage;
+  WindowSessionStorage &
+  WindowEventHandlers;
 
 const DEPENDENCIES: StorageXDependencyCollection =
   window || document.defaultView;
 
 export abstract class StorageXDependencies<
-  OtherDependencies extends Partial<StorageXDependencyCollection>
+  OtherDependencyKeys extends keyof StorageXDependencyCollection
 > {
-  private readonly _dependencies: OtherDependencies;
+  private readonly _dependencies: Pick<
+    StorageXDependencyCollection,
+    OtherDependencyKeys
+  >;
 
   protected constructor() {
-    this._dependencies = DEPENDENCIES as OtherDependencies;
+    this._dependencies = DEPENDENCIES;
 
     // Check the needed dependencies
     if (!this.dependencies) {
@@ -19,7 +23,10 @@ export abstract class StorageXDependencies<
     }
   }
 
-  protected get dependencies(): OtherDependencies {
+  protected get dependencies(): Pick<
+    StorageXDependencyCollection,
+    OtherDependencyKeys
+  > {
     return this._dependencies;
   }
 }

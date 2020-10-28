@@ -18,15 +18,14 @@ type StorageXEventHandlerCollection<StorageXCollection> = {
   >;
 };
 
-interface StorageXEventControllerDependencies {
-  setTimeout: WindowOrWorkerGlobalScope['setTimeout'];
-  onstorage: WindowEventHandlers['onstorage'];
-  addEventListener: WindowEventHandlers['addEventListener'];
-}
+type StorageXEventControllerDependencyKeys =
+  | 'setTimeout'
+  | 'onstorage'
+  | 'addEventListener';
 
 export class StorageXEventController<
   StorageXCollection
-> extends StorageXDependencies<StorageXEventControllerDependencies> {
+> extends StorageXDependencies<StorageXEventControllerDependencyKeys> {
   private readonly storageXEventHandlerCollection: StorageXEventHandlerCollection<
     StorageXCollection
   > = {};
