@@ -16,7 +16,7 @@ export enum StorageTypes {
 }
 
 export class StorageX<StorageXCollection> extends StorageXDependencies<
-  WindowLocalStorage & WindowSessionStorage
+  StorageTypes
 > {
   private readonly storage: Storage;
   private readonly eventController: StorageXEventController<StorageXCollection>;
@@ -57,7 +57,6 @@ export class StorageX<StorageXCollection> extends StorageXDependencies<
       error.name === 'QuotaExceededError' ||
       // Firefox
       error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
-      // acknowledge QuotaExceededError only if there's something already stored
     );
   }
 
@@ -127,6 +126,7 @@ export class StorageX<StorageXCollection> extends StorageXDependencies<
       return (
         error instanceof DOMException &&
         StorageX.isFirefoxError(error) &&
+        // acknowledge QuotaExceededError only if there's something already stored
         !!storage &&
         !!storage?.length
       );

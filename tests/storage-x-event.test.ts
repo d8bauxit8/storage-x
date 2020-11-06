@@ -1,5 +1,5 @@
-import { StorageXEventController } from './storage-x-event';
-import { StorageTypes } from './storage-x';
+import { StorageXEventController } from '../src/storage-x-event';
+import { StorageTypes } from '../src/storage-x';
 
 interface Test {
   __UTest__: string;

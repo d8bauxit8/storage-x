@@ -18,23 +18,14 @@ type StorageXEventHandlerCollection<StorageXCollection> = {
   >;
 };
 
-enum DependencyProperties {
-  ON_STORAGE = 'onstorage',
-  SET_TIMEOUT = 'setTimeout',
-  ADD_EVENT_LISTENER = 'addEventListener',
-}
-
-interface StorageXEventControllerDependencies {
-  [DependencyProperties.SET_TIMEOUT]: WindowOrWorkerGlobalScope['setTimeout'];
-  [DependencyProperties.ON_STORAGE]: WindowEventHandlers['onstorage'];
-  [DependencyProperties.ADD_EVENT_LISTENER]: WindowEventHandlers['addEventListener'];
-}
-
-const STORAGE_EVENT_NAME = 'storage';
+type StorageXEventControllerDependencyKeys =
+  | 'setTimeout'
+  | 'onstorage'
+  | 'addEventListener';
 
 export class StorageXEventController<
   StorageXCollection
-> extends StorageXDependencies<StorageXEventControllerDependencies> {
+> extends StorageXDependencies<StorageXEventControllerDependencyKeys> {
   private readonly storageXEventHandlerCollection: StorageXEventHandlerCollection<
     StorageXCollection
   > = {};
@@ -46,18 +37,16 @@ export class StorageXEventController<
     super();
 
     if (!this.isStorageEventAvailable()) {
-      throw new Error(`The ${STORAGE_EVENT_NAME} event is not available!`);
+      throw new Error('The storage event is not available!');
     }
 
     if (!this.isEventLoopAvailable()) {
-      throw new Error(
-        `The event loop is not available! (${DependencyProperties.SET_TIMEOUT})`
-      );
+      throw new Error('The event loop is not available! (setTimeout)');
     }
 
     // Initialization storage event
-    this.dependencies[DependencyProperties.ADD_EVENT_LISTENER]<'storage'>(
-      STORAGE_EVENT_NAME,
+    this.dependencies.addEventListener<'storage'>(
+      'storage',
       (event: StorageEvent): void => this.storageEventHandler(event),
       {
         passive: true,
@@ -105,13 +94,13 @@ export class StorageXEventController<
   }
 
   private isEventLoopAvailable(): boolean {
-    return !!this.dependencies[DependencyProperties.SET_TIMEOUT];
+    return this.dependencies.hasOwnProperty('setTimeout');
   }
 
   private isStorageEventAvailable(): boolean {
     return (
-      this.dependencies.hasOwnProperty(DependencyProperties.ON_STORAGE) &&
-      !!this.dependencies[DependencyProperties.ADD_EVENT_LISTENER]
+      this.dependencies.hasOwnProperty('onstorage') &&
+      this.dependencies.hasOwnProperty('addEventListener')
     );
   }
 
@@ -135,7 +124,7 @@ export class StorageXEventController<
               StorageXCollection[typeof key]
             >
           ): void => {
-            this.dependencies[DependencyProperties.SET_TIMEOUT]((): void => {
+            this.dependencies.setTimeout((): void => {
               handler(storageXEvent);
             });
           }
