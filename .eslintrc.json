@@ -14,5 +14,14 @@
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/member-ordering": "error",
     "@typescript-eslint/no-magic-numbers": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.test.ts"],
+      "rules": {
+        "@typescript-eslint/no-magic-numbers": 0,
+        "@typescript-eslint/no-explicit-any": 0
+      }
+    }
+  ]
 }
