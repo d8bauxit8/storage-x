@@ -1,5 +1,5 @@
 import { StorageXDependencies } from './storage-x-dependencies';
-import { StorageXEventController } from './storage-x-event';
+import { StorageXEventController } from './storage-x-event-controller';
 
 export interface StorageXItem<Data> {
   item: Data;
@@ -122,7 +122,7 @@ export class StorageX<StorageXCollection> extends StorageXDependencies<
       storage.removeItem(testValue);
 
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       return (
         error instanceof DOMException &&
         StorageX.isFirefoxError(error) &&

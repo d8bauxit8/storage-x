@@ -1,5 +1,5 @@
 import { StorageTypes, StorageX, StorageXItem } from '../src/storage-x';
-import { StorageXEventController } from '../src/storage-x-event';
+import { StorageXEventController } from '../src/storage-x-event-controller';
 
 interface Test {
   __UTestKey__: unknown;
@@ -7,8 +7,9 @@ interface Test {
 
 describe('StorageX', (): void => {
   const localStorage: Storage = window.localStorage;
+  const testKey = '__UTestKey__';
+
   let storageX: StorageX<Test>;
-  const key = '__UTestKey__';
 
   let localStorageSpyObj: Pick<Storage, keyof Storage>;
 
@@ -26,6 +27,17 @@ describe('StorageX', (): void => {
   it('should be created', (): void => {
     storageX = new StorageX<Test>(StorageTypes.LOCAL);
     expect(storageX).toBeTruthy();
+  });
+
+  it('should be created when got an error which is called the JSON unavailable because the JSON or its own two properties is not exists', (): void => {
+    const jsonParse: JSON['parse'] = JSON.parse;
+    delete (JSON as any)['parse'];
+
+    expect(() => new StorageX<Test>(StorageTypes.LOCAL)).toThrowError(
+      'The JSON API is not available!'
+    );
+
+    (JSON as any)['parse'] = jsonParse;
   });
 
   describe('should be created when got a DOMException', (): void => {
@@ -88,11 +100,11 @@ describe('StorageX', (): void => {
       describe('without expired property', (): void => {
         it('whose type is primitive', (): void => {
           const testValue = 'test';
-          storageX.setItem(key, testValue);
+          storageX.setItem(testKey, testValue);
 
           expect(localStorageSpyObj.setItem).toHaveBeenCalledTimes(1);
           expect(localStorageSpyObj.setItem).toHaveBeenCalledWith(
-            key,
+            testKey,
             JSON.stringify({ item: testValue })
           );
         });
@@ -102,11 +114,11 @@ describe('StorageX', (): void => {
             testBoolean: true,
             testString: 'test',
           };
-          storageX.setItem(key, testValue);
+          storageX.setItem(testKey, testValue);
 
           expect(localStorageSpyObj.setItem).toHaveBeenCalledTimes(1);
           expect(localStorageSpyObj.setItem).toHaveBeenCalledWith(
-            key,
+            testKey,
             JSON.stringify({ item: testValue })
           );
         });
@@ -121,11 +133,11 @@ describe('StorageX', (): void => {
 
         it('whose type is primitive', (): void => {
           const testValue = 'test';
-          storageX.setItem(key, testValue, testExpired);
+          storageX.setItem(testKey, testValue, testExpired);
 
           expect(localStorageSpyObj.setItem).toHaveBeenCalledTimes(1);
           expect(localStorageSpyObj.setItem).toHaveBeenCalledWith(
-            key,
+            testKey,
             JSON.stringify({ item: testValue, expired: testExpired.getTime() })
           );
         });
@@ -135,11 +147,11 @@ describe('StorageX', (): void => {
             testBoolean: true,
             testString: 'test',
           };
-          storageX.setItem(key, testValue, testExpired);
+          storageX.setItem(testKey, testValue, testExpired);
 
           expect(localStorageSpyObj.setItem).toHaveBeenCalledTimes(1);
           expect(localStorageSpyObj.setItem).toHaveBeenCalledWith(
-            key,
+            testKey,
             JSON.stringify({ item: testValue, expired: testExpired.getTime() })
           );
         });
@@ -174,12 +186,12 @@ describe('StorageX', (): void => {
 
       it('when there is not in the store', (): void => {
         (localStorageSpyObj.getItem as jest.Mock).mockReturnValue(null);
-        expect(storageX.getItem(key)).toEqual(undefined);
+        expect(storageX.getItem(testKey)).toEqual(undefined);
       });
 
       it('when there is in the store', (): void => {
         initStorageXItem();
-        expect(storageX.getItem(key)).toEqual(testValue);
+        expect(storageX.getItem(testKey)).toEqual(testValue);
       });
 
       describe('with expired date', (): void => {
@@ -188,7 +200,7 @@ describe('StorageX', (): void => {
           const offsetTimeValue = 1000;
           initStorageXItem(passedExpiredDate.getTime() + offsetTimeValue);
 
-          const item = storageX.getItem(key, passedExpiredDate);
+          const item = storageX.getItem(testKey, passedExpiredDate);
           expect(item).toEqual(testValue);
         });
 
@@ -197,7 +209,7 @@ describe('StorageX', (): void => {
           const offsetTimeValue = 1000;
           initStorageXItem(passedExpiredDate.getTime() - offsetTimeValue);
 
-          const item = storageX.getItem(key, passedExpiredDate);
+          const item = storageX.getItem(testKey, passedExpiredDate);
           expect(item).toEqual(undefined);
         });
 
@@ -205,7 +217,7 @@ describe('StorageX', (): void => {
           const passedExpiredDate = new Date();
           initStorageXItem();
 
-          const item = storageX.getItem(key, passedExpiredDate);
+          const item = storageX.getItem(testKey, passedExpiredDate);
           expect(item).toEqual(testValue);
         });
       });
@@ -218,17 +230,26 @@ describe('StorageX', (): void => {
       });
 
       it('one item', (): void => {
-        storageX.removeItem(key);
+        storageX.removeItem(testKey);
         expect(localStorageSpyObj.removeItem).toHaveBeenCalledTimes(1);
-        expect(localStorageSpyObj.removeItem).toHaveBeenCalledWith(key);
+        expect(localStorageSpyObj.removeItem).toHaveBeenCalledWith(testKey);
       });
 
       it('more items', (): void => {
-        storageX.removeItems([key, key, key]);
+        storageX.removeItems([testKey, testKey, testKey]);
         expect(localStorageSpyObj.removeItem).toHaveBeenCalledTimes(3);
-        expect(localStorageSpyObj.removeItem).toHaveBeenNthCalledWith(1, key);
-        expect(localStorageSpyObj.removeItem).toHaveBeenNthCalledWith(2, key);
-        expect(localStorageSpyObj.removeItem).toHaveBeenNthCalledWith(3, key);
+        expect(localStorageSpyObj.removeItem).toHaveBeenNthCalledWith(
+          1,
+          testKey
+        );
+        expect(localStorageSpyObj.removeItem).toHaveBeenNthCalledWith(
+          2,
+          testKey
+        );
+        expect(localStorageSpyObj.removeItem).toHaveBeenNthCalledWith(
+          3,
+          testKey
+        );
       });
     });
   });

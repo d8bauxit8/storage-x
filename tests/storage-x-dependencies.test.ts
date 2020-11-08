@@ -1,7 +1,7 @@
 import { StorageXDependencies } from '../src/storage-x-dependencies';
 
 // We have to define a test class because the StorageXDependencies is abstract.
-class StorageXTest extends StorageXDependencies<WindowLocalStorage> {
+class StorageXTest extends StorageXDependencies<'localStorage'> {
   constructor() {
     super();
   }
@@ -14,6 +14,7 @@ class StorageXTest extends StorageXDependencies<WindowLocalStorage> {
 class StorageXTestWhenThereIsNoWindow extends StorageXTest {
   protected get dependencies(): WindowLocalStorage {
     // Its needed to test the constructor error
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return null;
   }

@@ -54,13 +54,36 @@ export class StorageXEventController<
     );
   }
 
+  isKey<Key extends StorageXCollectionKey<StorageXCollection>>(
+    key: Key
+  ): boolean {
+    return !!this.getHandlerList(key);
+  }
+
+  isHandler<Key extends StorageXCollectionKey<StorageXCollection>>(
+    key: Key,
+    handler: StorageXEventHandler<Key, StorageXCollection[Key]>
+  ): boolean {
+    const handlerList = this.getHandlerList(key);
+
+    if (!!handlerList) {
+      const indexOfHandler = handlerList.indexOf(handler);
+      const notFoundItemReturnValue = -1;
+
+      if (indexOfHandler !== notFoundItemReturnValue) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   add<Key extends StorageXCollectionKey<StorageXCollection>>(
     key: Key,
     handler: StorageXEventHandler<Key, StorageXCollection[Key]>
   ): void {
     const handlerList = this.getHandlerList(key);
 
-    if (handlerList) {
+    if (!!handlerList) {
       handlerList.push(handler);
       return;
     }
@@ -74,7 +97,7 @@ export class StorageXEventController<
   ): void {
     const handlerList = this.getHandlerList(key);
 
-    if (handlerList) {
+    if (!!handlerList) {
       const indexOfHandler = handlerList.indexOf(handler);
       const notFoundItemReturnValue = -1;
 
@@ -88,7 +111,7 @@ export class StorageXEventController<
   removeAllInKey<Key extends StorageXCollectionKey<StorageXCollection>>(
     key: Key
   ): void {
-    if (this.storageXEventHandlerCollection[key]) {
+    if (this.isKey(key)) {
       delete this.storageXEventHandlerCollection[key];
     }
   }
@@ -111,7 +134,7 @@ export class StorageXEventController<
       >;
       const handlerList = this.getHandlerList(key);
 
-      if (handlerList) {
+      if (!!handlerList) {
         const storageXEvent: StorageXEvent<
           typeof key,
           StorageXCollection[typeof key]
@@ -154,10 +177,14 @@ export class StorageXEventController<
     rawStorageItemXValue: string | undefined
   ): StorageXCollection[Key] | undefined {
     if (rawStorageItemXValue) {
-      const storageXItem: StorageXItem<StorageXCollection[Key]> = JSON.parse(
-        rawStorageItemXValue
-      );
-      return !storageXItem ? undefined : storageXItem.item;
+      try {
+        const storageXItem: StorageXItem<StorageXCollection[Key]> = JSON.parse(
+          rawStorageItemXValue
+        );
+        return storageXItem.item;
+      } catch (error: unknown) {
+        return undefined;
+      }
     }
     return undefined;
   }
