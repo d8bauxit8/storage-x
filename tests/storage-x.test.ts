@@ -7,8 +7,9 @@ interface Test {
 
 describe('StorageX', (): void => {
   const localStorage: Storage = window.localStorage;
-  let storageX: StorageX<Test>;
   const key = '__UTestKey__';
+
+  let storageX: StorageX<Test>;
 
   let localStorageSpyObj: Pick<Storage, keyof Storage>;
 
