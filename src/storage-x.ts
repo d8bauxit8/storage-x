@@ -1,5 +1,5 @@
 import { StorageXDependencies } from './storage-x-dependencies';
-import { StorageXEventController } from './storage-x-event';
+import { StorageXEventController } from './storage-x-event-controller';
 
 export interface StorageXItem<Data> {
   item: Data;

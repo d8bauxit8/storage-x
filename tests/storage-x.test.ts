@@ -1,5 +1,5 @@
 import { StorageTypes, StorageX, StorageXItem } from '../src/storage-x';
-import { StorageXEventController } from '../src/storage-x-event';
+import { StorageXEventController } from '../src/storage-x-event-controller';
 
 interface Test {
   __UTestKey__: unknown;

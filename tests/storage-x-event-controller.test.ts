@@ -1,4 +1,4 @@
-import { StorageXEventController } from '../src/storage-x-event';
+import { StorageXEventController } from '../src/storage-x-event-controller';
 import { StorageTypes } from '../src/storage-x';
 
 interface Test {
