@@ -122,7 +122,7 @@ export class StorageX<StorageXCollection> extends StorageXDependencies<
       storage.removeItem(testValue);
 
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       return (
         error instanceof DOMException &&
         StorageX.isFirefoxError(error) &&
