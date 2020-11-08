@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function */
 import {
-  StorageXEvent,
   StorageXEventController,
   StorageXEventHandler,
 } from '../src/storage-x-event-controller';
@@ -18,15 +17,11 @@ describe('StorageXEventController', (): void => {
   const localStorage: Storage = {} as Storage;
   const testKey = '__UTestKey__';
 
-  const testHandler: StorageXEventHandler<'__UTestKey__', unknown> = (
-    _: StorageXEvent<'__UTestKey__', unknown>
-  ): void => {};
+  const testHandler: StorageXEventHandler<'__UTestKey__', unknown> = jest.fn();
   const dummyTestHandler: StorageXEventHandler<
     '__UTestKey__' | '__UTestKeyDummy__',
     unknown
-  > = (
-    _: StorageXEvent<'__UTestKey__' | '__UTestKeyDummy__', unknown>
-  ): void => {};
+  > = jest.fn();
 
   let storageXEventController: StorageXEventController<Test>;
 
@@ -253,6 +248,137 @@ describe('StorageXEventController', (): void => {
       expect(
         storageXEventController.isHandler(testKeyDummy, dummyTestHandler)
       ).toBeTruthy();
+    });
+  });
+
+  describe('should be called storage event', (): void => {
+    let eventHandler: (storageEvent: StorageEvent) => void;
+    let setTimeoutSpy: jest.SpyInstance<
+      WindowOrWorkerGlobalScope['setTimeout']
+    >;
+
+    beforeEach((): void => {
+      const addEventListenerSpy = jest.spyOn(window as any, 'addEventListener');
+      setTimeoutSpy = jest.spyOn(window as any, 'setTimeout');
+
+      initStorageXEventController();
+
+      eventHandler = addEventListenerSpy.mock.calls[0][1] as (
+        storageEvent: StorageEvent
+      ) => void;
+    });
+
+    const createStorageEvent = (
+      storageEvent?: Partial<StorageEvent>
+    ): StorageEvent => {
+      return { ...storageEvent } as StorageEvent;
+    };
+
+    it('when the storage event is not contain storageArea property', (): void => {
+      eventHandler(createStorageEvent());
+
+      expect(setTimeoutSpy).not.toHaveBeenCalled();
+    });
+
+    it("when the storage event's storageArea property does not equal the given storage", (): void => {
+      eventHandler(createStorageEvent({ storageArea: {} as Storage }));
+
+      expect(setTimeoutSpy).not.toHaveBeenCalled();
+    });
+
+    it('when there is no event handlers', (): void => {
+      eventHandler(
+        createStorageEvent({ storageArea: localStorage, key: testKey })
+      );
+
+      expect(setTimeoutSpy).not.toHaveBeenCalled();
+    });
+
+    describe('when there is one event handler', (): void => {
+      beforeEach((): void => {
+        storageXEventController.add(testKey, testHandler);
+      });
+
+      it("and the storageEvent's new and old value are StorageXItem", (): void => {
+        const newValue = { item: 'new' };
+        const oldValue = { item: 'old' };
+
+        eventHandler(
+          createStorageEvent({
+            storageArea: localStorage,
+            key: testKey,
+            newValue: JSON.stringify(newValue),
+            oldValue: JSON.stringify(oldValue),
+          })
+        );
+
+        expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+
+        // Get the given handler
+        const setTimeoutHandler = setTimeoutSpy.mock.calls[0][0];
+        setTimeoutHandler();
+
+        expect(testHandler).toHaveBeenCalledTimes(1);
+        expect(testHandler).toHaveBeenCalledWith({
+          key: testKey,
+          oldValue: oldValue.item,
+          newValue: newValue.item,
+          type: StorageTypes.LOCAL,
+        });
+      });
+
+      it("and the storageEvent's new value is not StorageXItem", (): void => {
+        const newValue = 'new';
+        const oldValue = { item: 'old' };
+
+        eventHandler(
+          createStorageEvent({
+            storageArea: localStorage,
+            key: testKey,
+            newValue,
+            oldValue: JSON.stringify(oldValue),
+          })
+        );
+
+        expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+
+        // Get the given handler
+        const setTimeoutHandler = setTimeoutSpy.mock.calls[0][0];
+        setTimeoutHandler();
+
+        expect(testHandler).toHaveBeenCalledTimes(1);
+        expect(testHandler).toHaveBeenCalledWith({
+          key: testKey,
+          oldValue: oldValue.item,
+          newValue: undefined,
+          type: StorageTypes.LOCAL,
+        });
+      });
+
+      it("and the storageEvent's new and old value are undefined", (): void => {
+        eventHandler(
+          createStorageEvent({
+            storageArea: localStorage,
+            key: testKey,
+            newValue: undefined,
+            oldValue: undefined,
+          })
+        );
+
+        expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+
+        // Get the given handler
+        const setTimeoutHandler = setTimeoutSpy.mock.calls[0][0];
+        setTimeoutHandler();
+
+        expect(testHandler).toHaveBeenCalledTimes(1);
+        expect(testHandler).toHaveBeenCalledWith({
+          key: testKey,
+          oldValue: undefined,
+          newValue: undefined,
+          type: StorageTypes.LOCAL,
+        });
+      });
     });
   });
 });

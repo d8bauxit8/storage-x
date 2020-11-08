@@ -177,10 +177,14 @@ export class StorageXEventController<
     rawStorageItemXValue: string | undefined
   ): StorageXCollection[Key] | undefined {
     if (rawStorageItemXValue) {
-      const storageXItem: StorageXItem<StorageXCollection[Key]> = JSON.parse(
-        rawStorageItemXValue
-      );
-      return !storageXItem ? undefined : storageXItem.item;
+      try {
+        const storageXItem: StorageXItem<StorageXCollection[Key]> = JSON.parse(
+          rawStorageItemXValue
+        );
+        return storageXItem.item;
+      } catch (error: unknown) {
+        return undefined;
+      }
     }
     return undefined;
   }
